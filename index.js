@@ -19,7 +19,7 @@ app.use(cors());
 app.use(cookieParser('null_chapter_is_the_best'));
 
 //db connection
-const db = async()=> {mongoose.connect("mongodb+srv://dbUser:barcelona12@cluster0.ifdd9.mongodb.net/webhunt?retryWrites=true&w=majority",
+const db = async()=> {mongoose.connect("process.env.DATABASE",
  {useNewUrlParser: true,
     useUnifiedTopology:true,
     useCreateIndex:true
