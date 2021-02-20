@@ -1,4 +1,5 @@
 //Required packages
+require('dotenv').config()
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -19,7 +20,7 @@ app.use(cors());
 app.use(cookieParser('null_chapter_is_the_best'));
 
 //db connection
-const db = async()=> {mongoose.connect("process.env.DATABASE",
+const db = async()=> {mongoose.connect(process.env.DATABASE,
  {useNewUrlParser: true,
     useUnifiedTopology:true,
     useCreateIndex:true
