@@ -10,7 +10,7 @@ const uuidv1 = require('uuid/v1');
    },
    
    answer: {
-       type: Number,
+       type: String
        
    }
 });

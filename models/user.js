@@ -10,7 +10,9 @@ const Bcrypt = require("bcryptjs");
         type: String,
         required: true
    },
-   
+   attempted:{
+     type: Number
+   },
    Score: {
     type: Number,
     default: 0
