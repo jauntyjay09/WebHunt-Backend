@@ -11,11 +11,16 @@ const Bcrypt = require("bcryptjs");
         required: true
    },
    attempted:{
-     type: Number
+     type: Number,
+     default:0
    },
    Score: {
     type: Number,
     default: 0
+  },
+  loggedIn: {
+    type: Boolean,
+    default: false
   }
   },
   {timestamps:true}

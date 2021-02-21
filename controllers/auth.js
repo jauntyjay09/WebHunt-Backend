@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const express = require('express');
 const app = express();
+
 var cookieParser = require('cookie-parser');
 app.use(cookieParser('null_chapter_is_the_best'));
 
@@ -46,7 +47,7 @@ exports.signin = async(req, res)=>{
              });
              res.cookie('teamID', req.body.teamID,{ maxAge: 900000,secure:true, httpOnly: true });
              
-            return res.json({login:true});
+            return res.sendFile(__dirname + '/glitch.html');
            });
         }
     });

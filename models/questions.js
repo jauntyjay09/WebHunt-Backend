@@ -1,7 +1,14 @@
-var mongoose = require("mongoose");
-const crypto = reqire('crypto');
-const uuidv1 = require('uuid/v1');
-  var questionSchema = new mongoose.Schema({
+var Mongoose = require("mongoose");
+const Bcrypt = require("bcryptjs");
+/*const conn2=Mongoose.connect(process.env.COLLECTION,
+    {useNewUrlParser: true,
+       useUnifiedTopology:true,
+       useCreateIndex:true
+   }).then(()=>{
+    console.log("DB is CONNECTED")
+  })
+  */
+  var questionSchema = new Mongoose.Schema({
    questionId:{
        type: Number,
        required: true,
@@ -10,8 +17,21 @@ const uuidv1 = require('uuid/v1');
    },
    
    answer: {
-       type: String
+       type: String,
+       required: true
        
    }
 });
-module.exports = mongoose.model("Questions",questionSchema);
+questionSchema.pre("save", function(next) {
+    if(!this.isModified("answer")) {
+        return next();
+    }
+    this.answer = Bcrypt.hashSync(this.answer, 10);
+    next();
+});
+
+
+questionSchema.methods.compareAnswer = function(plaintext, callback) {
+    return callback(null, Bcrypt.compareSync(plaintext, this.answer));
+};
+module.exports = Mongoose.model("Questions",questionSchema);
