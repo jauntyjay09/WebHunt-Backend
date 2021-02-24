@@ -35,44 +35,7 @@ exports.leaderboard = async (req, res)=>{
 
 };
 
-//for validating answer
-exports.validate= async(req, res)=>{
-  try {
-    var question = await Questions.findOne({ questionId: req.body.questionID }).exec();
-    console.log(req.body.questionID);
-    if(!question) {
-        return res.status(400).json({message:"Question does not exist"});
-    }
-    user.compareAnswer(req.body.answer, (err, match) => {
-        try{
-        if(!match) {
-            return res.status(401).json({message:"Invalid answer"});
-        }
-    
-    }catch (err) {
-        res.status(501).json({error:'internal server error'});
-    }
-    
-    if(match && question){
-    User.findOne({teamID: req.body.teamID}, function(err, user){
-        if(err)return ("err");
-        if(user.Score<req.body.questionID){
-        user.Score=user.Score+1;
-        user.save(function(err){
-           if(err)return ("err");
-         });
-         res.json({
-           message: true
-         })
-        
-        }
-       });
-    }
-});
-} catch (error) {
-    res.status(501).json({error:'internal server error'});
-}
-}
+
 
 //for updating the score
 exports.updateScore=async(req, res)=>{

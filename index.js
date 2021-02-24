@@ -46,3 +46,4 @@ app.get('/', function(request, response) {
     return response.sendFile(__dirname + '/welcome.html');
 });
  
+module.exports=app;
