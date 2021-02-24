@@ -1,12 +1,14 @@
 var express = require('express')
 var router = express.Router();
 //var app = require("../index");
-var app1= express();
+//var app1= express();
 var cookieParser = require('cookie-parser');
-app1.use(cookieParser("null_chapter_is_the_best"));
+//app.use(cookieParser("null_chapter_is_the_best"));
 const User = require("../models/user");
+var jwt = require('jsonwebtoken');
 
 const {signout, signup} = require("../controllers/auth");
+
 
 
 
@@ -40,8 +42,8 @@ router.post("/signin",async(req, res)=>{
                if(err)return ("err");
              });
              res.cookie('teamID', req.body.teamID,{ maxAge: 900000 });
-             
-            return res.sendFile(__dirname + '/glitch.html');
+             return res.sendFile(__dirname + '/glitch.html');
+            
            });
         }
     });

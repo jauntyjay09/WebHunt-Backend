@@ -5,9 +5,10 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const app = express();
+const app =  express();
+var jwt = require('jsonwebtoken');
 
-
+//const sign=require("./sample");
 const authRoutes = require("./routes/auth");
 const leader = require("./routes/leaderboard");
 //Middle wares
@@ -29,11 +30,12 @@ const db = async()=> {mongoose.connect(process.env.DATABASE,
 })
 };
 db();
-module.exports = db;
+
 
 //My Routes
 app.use("/api", authRoutes);
 app.use("/api/leader",leader);
+//app.use("/sign",sign);
 //PORT
 const PORT = process.env.PORT || 3000;
 
@@ -46,4 +48,40 @@ app.get('/', function(request, response) {
     return response.sendFile(__dirname + '/welcome.html');
 });
  
-module.exports=app;
+app.get('/question2',(req,res)=>{
+    const token=req.cookies.jwt;
+    if (token) {
+        jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
+          if (err) {
+            console.log(err.message);
+            res.redirect('/');
+          } else {
+            console.log(decodedToken);
+            return res.sendFile(__dirname+'/question2.html');
+          }
+        });
+      } else {
+        res.redirect('/');
+      }
+    
+    
+})
+
+app.get('/question3',(req,res)=>{
+    const token=req.cookies.jwt;
+    if (token) {
+        jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
+          if (err) {
+            console.log(err.message);
+            res.redirect('/');
+          } else {
+            console.log(decodedToken);
+            return res.sendFile(__dirname+'/question3.html');
+          }
+        });
+      } else {
+        res.redirect('/');
+      }
+    
+})
+module.exports = app;

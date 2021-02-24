@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var popup=require('popups');
+var jwt = require('jsonwebtoken');
+var expressJwt=require('express-jwt');
+//var popup=require('popups');
 
 const app = express();
 var cookieParser = require('cookie-parser');
@@ -17,19 +19,27 @@ router.put("/updateScore", updateScore);
 //for displaying leaderboard
 router.get("/leaderboard", leaderboard);
 
+//token creation method
+const maxAge = 3*24*60*60;
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.SECRET1, {
+      expiresIn: maxAge
+    });
+  };
+
+
 
 //for validating answer
 router.post("/validate/:id", async(req, res)=>{
     try {
         var team = await User.findOne({ teamID: req.cookies['teamID']}).exec();
-        console.log(req.cookies['teamID']);
+        
         //checking if team exists
-        console.log(team);
+        
         if(team){
-            console.log("working");
             console.log(req.params.id);
             var question = await Questions.findOne({ questionId: req.params.id }).exec();
-           console.log(question);
+           
       
       if(!question) {
           return res.status(400).json({message:"Question does not exist"});
@@ -37,27 +47,60 @@ router.post("/validate/:id", async(req, res)=>{
      question.compareAnswer(req.body.answer, (err, match) => {
           try{
           if(!match) {
-             return res.send(popup.alert({
+            return res.json({
+                message:'wrong answer'
+            })
+             /*return res.send(popup.alert({
                  content:'Wrong Answer :( Hunter. Try Again'
              }));
+             */
               }
             }catch (err) {
           res.status(501).json({error:'internal server error'});
       }
-      
+     
       if(match && question){
       User.findOne({teamID: req.cookies['teamID']}, function(err, user){
-          if(err)return ("err");
-          if(user.Score<req.params.id){
-          user.Score=user.Score+1;
-          user.save(function(err){
-             if(err)return ("err");
-           });
-           res.json({
-             message: true
-           })
+          if(err) return ("err");
+     
           
-          }
+          //user.Score=user.Score+1;
+          user.save(function(err){
+             if(err) return ("err");
+           });
+
+           //creating token
+           const token1 = createToken(req.params.id);
+              res.cookie('jwt',token1,{maxAge: maxAge * 1000});
+           
+          const token=req.cookies.jwt;
+
+           // check json web token exists & is verified
+           if(req.params.id==1){
+           res.redirect('/question2');
+
+        }  else if(req.params.id==2){
+           res.redirect('/question3');
+ 
+         }
+          else if(req.params.id==3){
+            if (token) {
+              jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
+                if (err) {
+                  console.log(err.message);
+                  res.redirect('/');
+                } else {
+                  console.log(decodedToken);
+                  res.sendFile(__dirname + '/question4.html');
+                }
+              });
+            } else {
+              res.redirect('/');
+            }
+ 
+         }
+          
+        
          });
       }
   });
