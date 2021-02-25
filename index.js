@@ -48,14 +48,47 @@ app.get('/', function(request, response) {
     return response.sendFile(__dirname + '/welcome.html');
 });
  
-app.get('/question2',(req,res)=>{
+const maxAge = 3*24*60*60;
+const createToken = (id,answered) => {
+    return jwt.sign({ id, answered}, process.env.SECRET1, {
+      expiresIn: maxAge
+    });
+  };
+
+app.get('/question/:id',(req,res)=>{
     const token=req.cookies.jwt;
+    if(req.params.id==1){
+
+      const token1= createToken(req.params.id,0);
+      res.cookie('jwt',token1,{maxAge:maxAge*1000});
+      return res.sendFile(__dirname+'/question1.html');
+    }
+    if(req.params.id==2){
+      if (token) {
+        jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
+          if (err) {
+            console.log(err.message);
+            res.redirect('/');
+          } else if(((req.params.id-1)==decodedToken.id) && (decodedToken.answered==1)){
+            console.log(decodedToken);
+            const token1= createToken(req.params.id);
+            res.cookie('jwt',token1,{maxAge:maxAge*1000});
+            return res.sendFile(__dirname+'/question2.html');
+          }
+        });
+      } else {
+        res.redirect('/');
+      }
+     
+      //return res.sendFile(__dirname+'/question2.html');
+    }
+    /*else if(req.params.id==2){
     if (token) {
         jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
           if (err) {
             console.log(err.message);
             res.redirect('/');
-          } else {
+          } else if((req.params.id-1)==decodedToken.id){
             console.log(decodedToken);
             return res.sendFile(__dirname+'/question2.html');
           }
@@ -64,24 +97,25 @@ app.get('/question2',(req,res)=>{
         res.redirect('/');
       }
     
-    
+    }  
+    else if(req.params.id==3){
+        if (token) {
+            jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
+              if (err) {
+                console.log(err.message);
+                res.redirect('/');
+              } else if((req.params.id-1)==decodedToken.id){
+                console.log(decodedToken);
+                return res.sendFile(__dirname+'/question3.html');
+              }
+            });
+          } else {
+            res.redirect('/');
+          }
+        
+        }  
+        */
 })
 
-app.get('/question3',(req,res)=>{
-    const token=req.cookies.jwt;
-    if (token) {
-        jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
-          if (err) {
-            console.log(err.message);
-            res.redirect('/');
-          } else {
-            console.log(decodedToken);
-            return res.sendFile(__dirname+'/question3.html');
-          }
-        });
-      } else {
-        res.redirect('/');
-      }
-    
-})
+
 module.exports = app;

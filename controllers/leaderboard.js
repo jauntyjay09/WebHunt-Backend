@@ -13,7 +13,7 @@ exports.store=async(req, res)=>{
             })
         }
         res.json({
-            questionID: question.questionID,
+            questionId: question.questionId,
             answer: question.answer
         });
         

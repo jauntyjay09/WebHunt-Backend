@@ -21,8 +21,8 @@ router.get("/leaderboard", leaderboard);
 
 //token creation method
 const maxAge = 3*24*60*60;
-const createToken = (id) => {
-    return jwt.sign({ id }, process.env.SECRET1, {
+const createToken = (id, answered) => {
+    return jwt.sign({ id,answered }, process.env.SECRET1, {
       expiresIn: maxAge
     });
   };
@@ -39,8 +39,6 @@ router.post("/validate/:id", async(req, res)=>{
         if(team){
             console.log(req.params.id);
             var question = await Questions.findOne({ questionId: req.params.id }).exec();
-           
-      
       if(!question) {
           return res.status(400).json({message:"Question does not exist"});
       }
@@ -70,36 +68,39 @@ router.post("/validate/:id", async(req, res)=>{
            });
 
            //creating token
-           const token1 = createToken(req.params.id);
-              res.cookie('jwt',token1,{maxAge: maxAge * 1000});
            
-          const token=req.cookies.jwt;
 
-           // check json web token exists & is verified
-           if(req.params.id==1){
-           res.redirect('/question2');
+          const token=req.cookies['jwt'];
 
-        }  else if(req.params.id==2){
-           res.redirect('/question3');
- 
-         }
-          else if(req.params.id==3){
+          console.log(token);
             if (token) {
-              jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
-                if (err) {
-                  console.log(err.message);
-                  res.redirect('/');
-                } else {
-                  console.log(decodedToken);
-                  res.sendFile(__dirname + '/question4.html');
+              
+                jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
+                 console.log("hello");
+                  if (err) {
+                    console.log(err.message);
+                    res.json({
+                      message:'Token is not matching'
+                    });
+                  } else  if(decodedToken.id==req.params.id && req.params.id-1==decodedToken.answered){
+                   // console.log(decodedToken);
+                    if(req.params.id==1){
+                      const token1= createToken(req.params.id,1);
+      res.cookie('jwt',token1,{maxAge:maxAge*1000});
+                    return res.redirect('/question/2');
+                    }
+                    else if(req.params.id==2){
+                        return res.redirect('/question/3');
+                  }
                 }
-              });
-            } else {
-              res.redirect('/');
-            }
- 
-         }
-          
+             });
+              } else {
+                res.json({
+                  message:'not found'
+                })
+              }
+            
+              
         
          });
       }

@@ -42,7 +42,7 @@ router.post("/signin",async(req, res)=>{
                if(err)return ("err");
              });
              res.cookie('teamID', req.body.teamID,{ maxAge: 900000 });
-             return res.sendFile(__dirname + '/glitch.html');
+             return res.redirect('/question/1');
             
            });
         }
