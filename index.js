@@ -44,7 +44,7 @@ const PORT = process.env.PORT || 3000;
     console.log(`app is running at ${PORT}`);
 })
 
-app.get('/', function(request, response) {
+app.get('/signin', function(request, response) {
     return response.sendFile(__dirname + '/welcome.html');
 });
  
@@ -56,65 +56,61 @@ const createToken = (id,answered) => {
   };
 
 app.get('/question/:id',(req,res)=>{
-    const token=req.cookies.jwt;
+  const token=req.cookies.jwt;
     if(req.params.id==1){
 
       const token1= createToken(req.params.id,0);
       res.cookie('jwt',token1,{maxAge:maxAge*1000});
       return res.sendFile(__dirname+'/question1.html');
     }
-    if(req.params.id==2){
+    else if(req.params.id==2){
+      
+      console.log("token:"+ token);
+      console.log("Question 2");
       if (token) {
         jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
           if (err) {
+           
             console.log(err.message);
-            res.redirect('/');
-          } else if(((req.params.id-1)==decodedToken.id) && (decodedToken.answered==1)){
+            res.redirect('/signin');
+            
+          } else if(((req.params.id)>=decodedToken.id) && (decodedToken.answered==1)){
             console.log(decodedToken);
-            const token1= createToken(req.params.id);
+            const token1= createToken(req.params.id,1);
             res.cookie('jwt',token1,{maxAge:maxAge*1000});
             return res.sendFile(__dirname+'/question2.html');
           }
         });
       } else {
-        res.redirect('/');
+        
+        res.redirect('/signin');
       }
-     
-      //return res.sendFile(__dirname+'/question2.html');
     }
-    /*else if(req.params.id==2){
-    if (token) {
+    else if(req.params.id==3){
+      console.log(token);
+      if (token) {
+        
         jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
+          console.log(decodedToken);
           if (err) {
             console.log(err.message);
-            res.redirect('/');
-          } else if((req.params.id-1)==decodedToken.id){
+            res.redirect('/signin');
+          } 
+          
+          else if(((req.params.id)>=decodedToken.id) && (decodedToken.answered==2)){
             console.log(decodedToken);
-            return res.sendFile(__dirname+'/question2.html');
+            const token1= createToken(req.params.id,2);
+            res.cookie('jwt',token1,{maxAge:maxAge*1000});
+            return res.sendFile(__dirname+'/question3.html');
           }
+         
+
         });
       } else {
-        res.redirect('/');
+        res.redirect('/signin');
       }
+    }
     
-    }  
-    else if(req.params.id==3){
-        if (token) {
-            jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
-              if (err) {
-                console.log(err.message);
-                res.redirect('/');
-              } else if((req.params.id-1)==decodedToken.id){
-                console.log(decodedToken);
-                return res.sendFile(__dirname+'/question3.html');
-              }
-            });
-          } else {
-            res.redirect('/');
-          }
-        
-        }  
-        */
 })
 
 

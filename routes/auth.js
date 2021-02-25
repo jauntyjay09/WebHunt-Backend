@@ -38,11 +38,30 @@ router.post("/signin",async(req, res)=>{
         User.findOne({teamID: req.body.teamID}, function(err, user){
             if(err)return ("err");
             user.loggedIn = true;
+           // console.log("loggedin");
             user.save(function(err){
-               if(err)return ("err");
-             });
+                if(err)return ("err");
+              });
+            //console.log("attempted"+user.attempted);
              res.cookie('teamID', req.body.teamID,{ maxAge: 900000 });
+             if(user.attempted==0){
+             
              return res.redirect('/question/1');
+             }
+
+              else if(user.attempted==1)
+             return res.redirect('/question/2');
+
+             else if(user.attempted==2){
+             return res.redirect('/question/3');
+             }
+
+             else if(user.attempted==3)
+             return res.redirect('/question/4');
+
+             else if(user.attempted==4)
+             return res.redirect('/question/5');
+            
             
            });
         }

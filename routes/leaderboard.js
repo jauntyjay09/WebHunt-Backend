@@ -37,7 +37,7 @@ router.post("/validate/:id", async(req, res)=>{
         //checking if team exists
         
         if(team){
-            console.log(req.params.id);
+           
             var question = await Questions.findOne({ questionId: req.params.id }).exec();
       if(!question) {
           return res.status(400).json({message:"Question does not exist"});
@@ -72,11 +72,11 @@ router.post("/validate/:id", async(req, res)=>{
 
           const token=req.cookies['jwt'];
 
-          console.log(token);
+          //console.log(token);
             if (token) {
               
                 jwt.verify(token, process.env.SECRET1, (err, decodedToken) => {
-                 console.log("hello");
+                 //console.log("hello");
                   if (err) {
                     console.log(err.message);
                     res.json({
@@ -85,11 +85,25 @@ router.post("/validate/:id", async(req, res)=>{
                   } else  if(decodedToken.id==req.params.id && req.params.id-1==decodedToken.answered){
                    // console.log(decodedToken);
                     if(req.params.id==1){
+                      user.attempted=1;
+                      user.Score=user.Score+1;
+                      user.save(function(err){
+                        if(err) return ("err");
+                      });
                       const token1= createToken(req.params.id,1);
-      res.cookie('jwt',token1,{maxAge:maxAge*1000});
+                      res.cookie('jwt',token1,{maxAge:maxAge*1000});
                     return res.redirect('/question/2');
                     }
-                    else if(req.params.id==2){
+
+                     if(req.params.id==2){
+                     
+                      user.attempted=2;
+                      user.Score=user.Score+1;
+                      user.save(function(err){
+                        if(err) return ("err");
+                      });
+                      const token1= createToken(req.params.id,2);
+                      res.cookie('jwt',token1,{maxAge:maxAge*1000});
                         return res.redirect('/question/3');
                   }
                 }
