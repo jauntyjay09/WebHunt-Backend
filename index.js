@@ -8,18 +8,18 @@ const cors = require("cors");
 const app =  express();
 var jwt = require('jsonwebtoken');
 
-//const sign=require("./sample");
+//const auth=require("./sample");
 const authRoutes = require("./routes/auth");
 const leader = require("./routes/leaderboard");
 //Middle wares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 app.use(bodyParser.json());
-app.use(cookieParser());
+
 app.use(cors());
 //cookies
 app.use(cookieParser('null_chapter_is_the_best'));
-
+//app.use(auth);
 //db connection
 const db = async()=> {mongoose.connect(process.env.DATABASE,
  {useNewUrlParser: true,
@@ -44,9 +44,7 @@ const PORT = process.env.PORT || 3000;
     console.log(`app is running at ${PORT}`);
 })
 
-app.get('/signin', function(request, response) {
-    return response.sendFile(__dirname + '/welcome.html');
-});
+
  
 const maxAge = 3*24*60*60;
 const createToken = (id,answered) => {
@@ -54,6 +52,16 @@ const createToken = (id,answered) => {
       expiresIn: maxAge
     });
   };
+  
+  app.get('/',function(req, res){
+    res.cookie('attempt',0,{maxAge:maxAge*1000});
+    return res.sendFile(__dirname + '/webhunt3.0.html');
+  })
+
+  app.get('/signin', function(req, res) {
+ return res.sendFile(__dirname + '/welcome.html');
+
+});
 
 app.get('/question/:id',(req,res)=>{
   const token=req.cookies.jwt;
@@ -80,6 +88,11 @@ app.get('/question/:id',(req,res)=>{
             res.cookie('jwt',token1,{maxAge:maxAge*1000});
             return res.sendFile(__dirname+'/question2.html');
           }
+          else{
+            return res.json({
+              message:"Hey buddy! Not authorized"
+            })
+          }
         });
       } else {
         
@@ -102,6 +115,11 @@ app.get('/question/:id',(req,res)=>{
             const token1= createToken(req.params.id,2);
             res.cookie('jwt',token1,{maxAge:maxAge*1000});
             return res.sendFile(__dirname+'/question3.html');
+          } 
+          else{
+            return res.json({
+              message:"Hey buddy! Not authorized"
+            })
           }
          
 

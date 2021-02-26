@@ -10,7 +10,7 @@ var jwt = require('jsonwebtoken');
 const {signout, signup} = require("../controllers/auth");
 
 
-
+const maxAge = 3*24*60*60;
 
 router.post("/signup", signup);
 router.get("/signout",signout);
@@ -39,27 +39,30 @@ router.post("/signin",async(req, res)=>{
             if(err)return ("err");
             user.loggedIn = true;
            // console.log("loggedin");
+           
             user.save(function(err){
                 if(err)return ("err");
               });
             //console.log("attempted"+user.attempted);
              res.cookie('teamID', req.body.teamID,{ maxAge: 900000 });
-             if(user.attempted==0){
+             var loginChecking=req.cookies['attempt'];
+             console.log(loginChecking);
              
+             if(loginChecking==0){
              return res.redirect('/question/1');
              }
 
-              else if(user.attempted==1)
+              else if(loginChecking==1)
              return res.redirect('/question/2');
 
-             else if(user.attempted==2){
+             else if(loginChecking==2){
              return res.redirect('/question/3');
              }
 
-             else if(user.attempted==3)
+             else if(loginChecking==3)
              return res.redirect('/question/4');
 
-             else if(user.attempted==4)
+             else if(loginChecking==4)
              return res.redirect('/question/5');
             
             

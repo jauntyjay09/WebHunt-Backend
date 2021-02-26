@@ -3,14 +3,16 @@ var router = express.Router();
 var jwt = require('jsonwebtoken');
 var expressJwt=require('express-jwt');
 //var popup=require('popups');
-
+/*const popup=require('node-popup');
+const alert = popup.alert;
+*/
 const app = express();
 var cookieParser = require('cookie-parser');
 app.use(cookieParser('null_chapter_is_the_best'));
 const User = require("../models/user");
 const Questions = require("../models/questions");
 const {leaderboard,updateScore,store} = require("../controllers/leaderboard");
-//const popup=require('node-popup');
+
 //for storing questions
 router.post("/store",store);
 
@@ -45,9 +47,11 @@ router.post("/validate/:id", async(req, res)=>{
      question.compareAnswer(req.body.answer, (err, match) => {
           try{
           if(!match) {
+            
             return res.json({
-                message:'wrong answer'
+                message:'false'
             })
+            
              /*return res.send(popup.alert({
                  content:'Wrong Answer :( Hunter. Try Again'
              }));
@@ -68,8 +72,6 @@ router.post("/validate/:id", async(req, res)=>{
            });
 
            //creating token
-           
-
           const token=req.cookies['jwt'];
 
           //console.log(token);
@@ -85,23 +87,27 @@ router.post("/validate/:id", async(req, res)=>{
                   } else  if(decodedToken.id==req.params.id && req.params.id-1==decodedToken.answered){
                    // console.log(decodedToken);
                     if(req.params.id==1){
+                      if(user.attempted==0 && user.Score==0){
                       user.attempted=1;
                       user.Score=user.Score+1;
                       user.save(function(err){
                         if(err) return ("err");
                       });
+                      }
+                      res.cookie('attempt',1,{maxAge:maxAge*1000});
                       const token1= createToken(req.params.id,1);
                       res.cookie('jwt',token1,{maxAge:maxAge*1000});
                     return res.redirect('/question/2');
                     }
-
-                     if(req.params.id==2){
-                     
+                   else if(req.params.id==2){
+                    if(user.attempted==1 && user.Score==1){
                       user.attempted=2;
                       user.Score=user.Score+1;
                       user.save(function(err){
                         if(err) return ("err");
                       });
+                      }
+                      res.cookie('attempt',2,{maxAge:maxAge*1000,secure:true});
                       const token1= createToken(req.params.id,2);
                       res.cookie('jwt',token1,{maxAge:maxAge*1000});
                         return res.redirect('/question/3');
